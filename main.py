@@ -4,6 +4,7 @@
 # This is the game of Reversi using pygame
 
 import pygame
+import time
 
 # Pygame initialization
 pygame.init()
@@ -41,7 +42,7 @@ turn = True
 board_to_coord = []
 for i in range(0, 8):
     for j in range(0, 8):
-        board_to_coord.append([(i*8)+j, [(150+(j*100)), (150+(i*100))]])
+        board_to_coord.append([(i * 8) + j, [(150 + (j * 100)), (150 + (i * 100))]])
 
 
 # Precondition: 0 <= board_position <= 63
@@ -112,7 +113,15 @@ def calculate_moves():
     for spot in range(len(board)):
         row = spot // 8
         col = spot % 8
-        piece = ' '
+        n = False
+        s = False
+        e = False
+        w = False
+        ne = False
+        nw = False
+        se = False
+        sw = False
+
         if board[spot] == ' ':
 
             # North test
@@ -125,7 +134,7 @@ def calculate_moves():
                         elif board[N * 8 + col] == ' ':
                             break
                         else:
-                            available_moves.append(spot)
+                            n = True
                             flag = True
                             break
 
@@ -139,7 +148,7 @@ def calculate_moves():
                         elif board[S * 8 + col] == ' ':
                             break
                         else:
-                            available_moves.append(spot)
+                            s = True
                             flag = True
                             break
 
@@ -153,7 +162,7 @@ def calculate_moves():
                         elif board[row * 8 + E] == ' ':
                             break
                         else:
-                            available_moves.append(spot)
+                            e = True
                             flag = True
                             break
 
@@ -167,7 +176,7 @@ def calculate_moves():
                         elif board[row * 8 + W] == ' ':
                             break
                         else:
-                            available_moves.append(spot)
+                            w = True
                             flag = True
                             break
 
@@ -175,7 +184,7 @@ def calculate_moves():
             if (col - 1) >= 0 and (row - 1) >= 0:
                 piece = board[((row - 1) * 8) + (col - 1)]
                 if (piece == 'W' and turn) or (piece == 'B' and not turn):
-                    for NW in range(0, 8):
+                    for NW in range(1, 8):
                         if ((col - NW) >= 0) and ((row - NW) >= 0):
                             if (board[((row - NW) * 8) + (col - NW)] == 'W' and turn) or \
                                     (board[((row - NW) * 8) + (col - NW)] == 'B' and not turn):
@@ -183,7 +192,7 @@ def calculate_moves():
                             elif board[((row - NW) * 8) + (col - NW)] == ' ':
                                 break
                             else:
-                                available_moves.append(spot)
+                                nw = True
                                 flag = True
                                 break
                         else:
@@ -193,7 +202,7 @@ def calculate_moves():
             if (col + 1) <= 7 and (row - 1) >= 0:
                 piece = board[((row - 1) * 8) + (col + 1)]
                 if (piece == 'W' and turn) or (piece == 'B' and not turn):
-                    for NE in range(0, 8):
+                    for NE in range(1, 8):
                         if ((col + NE) <= 7) and ((row - NE) >= 0):
                             if (board[((row - NE) * 8) + (col + NE)] == 'W' and turn) or \
                                     (board[((row - NE) * 8) + (col + NE)] == 'B' and not turn):
@@ -201,7 +210,7 @@ def calculate_moves():
                             elif board[((row - NE) * 8) + (col + NE)] == ' ':
                                 break
                             else:
-                                available_moves.append(spot)
+                                ne = True
                                 flag = True
                                 break
                         else:
@@ -211,7 +220,7 @@ def calculate_moves():
             if (col - 1) >= 0 and (row + 1) <= 7:
                 piece = board[((row + 1) * 8) + (col - 1)]
                 if (piece == 'W' and turn) or (piece == 'B' and not turn):
-                    for SW in range(0, 8):
+                    for SW in range(1, 8):
                         if ((col - SW) >= 0) and ((row + SW) <= 7):
                             if (board[((row + SW) * 8) + (col - SW)] == 'W' and turn) or \
                                     (board[((row + SW) * 8) + (col - SW)] == 'B' and not turn):
@@ -219,7 +228,7 @@ def calculate_moves():
                             elif board[((row + SW) * 8) + (col - SW)] == ' ':
                                 break
                             else:
-                                available_moves.append(spot)
+                                sw = True
                                 flag = True
                                 break
                         else:
@@ -229,7 +238,7 @@ def calculate_moves():
             if (col + 1) <= 7 and (row + 1) <= 7:
                 piece = board[((row + 1) * 8) + (col + 1)]
                 if (piece == 'W' and turn) or (piece == 'B' and not turn):
-                    for SE in range(0, 8):
+                    for SE in range(1, 8):
                         if ((col + SE) <= 7) and ((row + SE) <= 7):
                             if (board[((row + SE) * 8) + (col + SE)] == 'W' and turn) or \
                                     (board[((row + SE) * 8) + (col + SE)] == 'B' and not turn):
@@ -237,28 +246,171 @@ def calculate_moves():
                             elif board[((row + SE) * 8) + (col + SE)] == ' ':
                                 break
                             else:
-                                available_moves.append(spot)
+                                se = True
                                 flag = True
                                 break
                         else:
                             break
+
+        if n or s or e or w or ne or nw or se or sw:
+            available_moves.append([spot, [n, e, s, w, ne, se, sw, nw]])
 
     return flag
 
 
 def draw_available():
     for index in available_moves:
-        pygame.draw.circle(screen, (200, 200, 30), board_to_coord_function(index), 35)
+        pygame.draw.circle(screen, (200, 200, 30), board_to_coord_function(index[0]), 35)
+
+
+def move_check(position):
+    global available_moves
+    col = position[0] // 100 - 1
+    row = position[1] // 100 - 1
+    if 0 <= row <= 7 and 0 <= col <= 7:
+        index = row * 8 + col
+        for a in range(len(available_moves)):
+            if index == available_moves[a][0]:
+                board_update(available_moves[a])
+                break
+
+
+def board_update(index):
+    global turn
+    global available_moves
+    global board
+    global white_pieces
+    global black_pieces
+
+    row = index[0] // 8
+    col = index[0] % 8
+
+    if turn:
+        end_piece = 'B'
+    else:
+        end_piece = 'W'
+
+    board[index[0]] = end_piece
+
+    counter = 1
+    # North
+    if index[1][0]:
+        while True:
+            if board[(row - counter) * 8 + col] == end_piece:
+                break
+            else:
+                board[(row - counter) * 8 + col] = end_piece
+            counter += 1
+
+    counter = 1
+    # East
+    if index[1][1]:
+        while True:
+            if board[row * 8 + col + counter] == end_piece:
+                break
+            else:
+                board[row * 8 + col + counter] = end_piece
+            counter += 1
+
+    counter = 1
+    # South
+    if index[1][2]:
+        while True:
+            if board[(row + counter) * 8 + col] == end_piece:
+                break
+            else:
+                board[(row + counter) * 8 + col] = end_piece
+            counter += 1
+
+    counter = 1
+    # West
+    if index[1][3]:
+        while True:
+            if board[row * 8 + col - counter] == end_piece:
+                break
+            else:
+                board[row * 8 + col - counter] = end_piece
+            counter += 1
+
+    counter = 1
+    # North East
+    if index[1][4]:
+        while True:
+            if board[(row - counter) * 8 + col + counter] == end_piece:
+                break
+            else:
+                board[(row - counter) * 8 + col + counter] = end_piece
+            counter += 1
+
+    counter = 1
+    # South East
+    if index[1][5]:
+        while True:
+            if board[(row + counter) * 8 + col + counter] == end_piece:
+                break
+            else:
+                board[(row + counter) * 8 + col + counter] = end_piece
+            counter += 1
+
+    counter = 1
+    # South West
+    if index[1][6]:
+        while True:
+            if board[(row + counter) * 8 + col - counter] == end_piece:
+                break
+            else:
+                board[(row + counter) * 8 + col - counter] = end_piece
+            counter += 1
+
+    counter = 1
+    # North West
+    if index[1][7]:
+        while True:
+            if board[(row - counter) * 8 + col - counter] == end_piece:
+                break
+            else:
+                board[(row - counter) * 8 + col - counter] = end_piece
+            counter += 1
+
+    turn = not turn
+    available_moves = []
+    white_pieces = 0
+    black_pieces = 0
+    for a in range(len(board)):
+        if board[a] == 'W':
+            white_pieces += 1
+        elif board[a] == 'B':
+            black_pieces += 1
+
+
+def board_full():
+    if ' ' in board:
+        return False
+    else:
+        return True
+
+
+def display_winner():
+    if black_pieces > white_pieces:
+        win_color = 'BLACK'
+    else:
+        win_color = 'WHITE'
+
+    font_bold = pygame.font.SysFont('arial', 42, bold=True)
+    win = font_bold.render(f"{win_color} WINS!!!", True, (255, 0, 0))
+    screen.blit(win, (400, 475))
 
 
 # Game loop
 running = True
 while running:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
+            move_check(pos)
 
     # Draw board
     screen.fill((50, 176, 201))
@@ -267,9 +419,34 @@ while running:
     board_pieces()
     board_info()
     if len(available_moves) == 0:
-        print("calculate")
         if not calculate_moves():
-            running = False
+            if board_full():
+                running = False
+            else:
+                if turn:
+                    color = 'Black'
+                else:
+                    color = 'White'
+
+                font = pygame.font.SysFont('arial', 42, bold=True)
+                forfeit_message = font.render(f"{color}'s turn was forfeited because they could not play.",
+                                              True, (255, 0, 0))
+                screen.blit(forfeit_message, (80, 475))
+                pygame.display.update()
+                time.sleep(3)
+                turn = not turn
+                continue
     draw_available()
 
+    pygame.display.update()
+
+end_running = True
+while end_running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            end_running = False
+    board_background()
+    board_pieces()
+    board_info()
+    display_winner()
     pygame.display.update()
