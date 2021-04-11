@@ -20,6 +20,8 @@ pygame.display.set_icon(icon)
 # RGB Color Definitions
 black = (0, 0, 0)
 white = (255, 255, 255)
+grey = (82, 82, 82)
+light_grey = (122, 122, 122)
 
 # Game information
 board = []
@@ -401,52 +403,141 @@ def display_winner():
     screen.blit(win, (400, 475))
 
 
-# Game loop
-running = True
-while running:
+def end_of_game():
+    end_running = True
+    while end_running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                end_running = False
+        board_background()
+        board_pieces()
+        board_info()
+        display_winner()
+        pygame.display.update()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONUP:
-            pos = pygame.mouse.get_pos()
-            move_check(pos)
 
-    # Draw board
-    screen.fill((50, 176, 201))
+def player_vs_player():
+    global turn
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                move_check(pos)
 
-    board_background()
-    board_pieces()
-    board_info()
-    if len(available_moves) == 0:
-        if not calculate_moves():
-            if board_full():
-                running = False
-            else:
-                if turn:
-                    color = 'Black'
+        # Draw board
+        screen.fill((50, 176, 201))
+
+        board_background()
+        board_pieces()
+        board_info()
+        if len(available_moves) == 0:
+            if not calculate_moves():
+                if board_full():
+                    running = False
                 else:
-                    color = 'White'
+                    if turn:
+                        color = 'Black'
+                    else:
+                        color = 'White'
 
-                font = pygame.font.SysFont('arial', 42, bold=True)
-                forfeit_message = font.render(f"{color}'s turn was forfeited because they could not play.",
-                                              True, (255, 0, 0))
-                screen.blit(forfeit_message, (80, 475))
-                pygame.display.update()
-                time.sleep(3)
-                turn = not turn
-                continue
-    draw_available()
+                    font = pygame.font.SysFont('arial', 42, bold=True)
+                    forfeit_message = font.render(f"{color}'s turn was forfeited because they could not play.",
+                                                  True, (255, 0, 0))
+                    screen.blit(forfeit_message, (80, 475))
+                    pygame.display.update()
+                    time.sleep(3)
+                    turn = not turn
+                    continue
+        draw_available()
 
-    pygame.display.update()
+        pygame.display.update()
 
-end_running = True
-while end_running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            end_running = False
-    board_background()
-    board_pieces()
-    board_info()
-    display_winner()
-    pygame.display.update()
+
+def player_vs_bot():
+    print('player vs bot')
+
+
+def bot_vs_bot():
+    print('bot vs bot')
+
+
+def rules():
+    print('rules')
+
+
+if __name__ == "__main__":
+    menu_running = True
+    while menu_running:
+        for event_menu in pygame.event.get():
+            if event_menu.type == pygame.QUIT:
+                quit()
+            if event_menu.type == pygame.MOUSEBUTTONUP:
+                print("click")
+                menu_pos = pygame.mouse.get_pos()
+                if 410 <= menu_pos[0] <= 690 and 400 <= menu_pos[1] <= 450:
+                    player_vs_player()
+                elif 410 <= menu_pos[0] <= 690 and 460 <= menu_pos[1] <= 510:
+                    player_vs_bot()
+                elif 410 <= menu_pos[0] <= 690 and 520 <= menu_pos[1] <= 570:
+                    bot_vs_bot()
+                elif 410 <= menu_pos[0] <= 690 and 580 <= menu_pos[1] <= 630:
+                    rules()
+                elif 410 <= mouse[0] <= 690 and 640 <= mouse[1] <= 690:
+                    quit()
+
+        screen.fill((50, 176, 201))
+
+        mouse = pygame.mouse.get_pos()
+
+        if 410 <= mouse[0] <= 690 and 400 <= mouse[1] <= 450:
+            pygame.draw.rect(screen, light_grey, (410, 400, 280, 50))
+        else:
+            pygame.draw.rect(screen, grey, (410, 400, 280, 50))
+
+        if 410 <= mouse[0] <= 690 and 460 <= mouse[1] <= 510:
+            pygame.draw.rect(screen, light_grey, (410, 460, 280, 50))
+        else:
+            pygame.draw.rect(screen, grey, (410, 460, 280, 50))
+
+        if 410 <= mouse[0] <= 690 and 520 <= mouse[1] <= 570:
+            pygame.draw.rect(screen, light_grey, (410, 520, 280, 50))
+        else:
+            pygame.draw.rect(screen, grey, (410, 520, 280, 50))
+
+        if 410 <= mouse[0] <= 690 and 580 <= mouse[1] <= 630:
+            pygame.draw.rect(screen, light_grey, (410, 580, 280, 50))
+        else:
+            pygame.draw.rect(screen, grey, (410, 580, 280, 50))
+
+        if 410 <= mouse[0] <= 690 and 640 <= mouse[1] <= 690:
+            pygame.draw.rect(screen, light_grey, (410, 640, 280, 50))
+        else:
+            pygame.draw.rect(screen, grey, (410, 640, 280, 50))
+
+        pygame.draw.rect(screen, black, (410, 400, 280, 50), width=2)
+        pygame.draw.rect(screen, black, (410, 460, 280, 50), width=2)
+        pygame.draw.rect(screen, black, (410, 520, 280, 50), width=2)
+        pygame.draw.rect(screen, black, (410, 580, 280, 50), width=2)
+        pygame.draw.rect(screen, black, (410, 640, 280, 50), width=2)
+
+        title = pygame.font.SysFont('arial', 60, bold=True)
+        reversi = title.render("REVERSI", True, black)
+
+        button_font = pygame.font.SysFont('arial', 42)
+        button_pvp = button_font.render("Player vs. Player", True, black)
+        button_pvb = button_font.render("Player vs. Bot", True, black)
+        button_bvb = button_font.render("Bot vs. Bot", True, black)
+        button_rules = button_font.render("Rules", True, black)
+        button_quit = button_font.render("Quit", True, black)
+
+        screen.blit(reversi, (440, 100))
+        screen.blit(button_pvp, (420, 400))
+        screen.blit(button_pvb, (440, 460))
+        screen.blit(button_bvb, (470, 520))
+        screen.blit(button_rules, (505, 580))
+        screen.blit(button_quit, (515, 640))
+
+        pygame.display.update()
