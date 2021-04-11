@@ -22,6 +22,9 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 grey = (82, 82, 82)
 light_grey = (122, 122, 122)
+cyan = (50, 176, 201)
+green = (26, 186, 15)
+yellow = (200, 200, 30)
 
 # Game information
 board = []
@@ -55,7 +58,7 @@ def board_to_coord_function(board_position):
 # Background of Board
 def board_background():
     # Green
-    pygame.draw.rect(screen, (26, 186, 15), (100, 100, 800, 800))
+    pygame.draw.rect(screen, green, (100, 100, 800, 800))
     pygame.draw.rect(screen, black, (100, 100, 800, 800), width=2)
 
     # Vertical Lines
@@ -262,7 +265,7 @@ def calculate_moves():
 
 def draw_available():
     for index in available_moves:
-        pygame.draw.circle(screen, (200, 200, 30), board_to_coord_function(index[0]), 35)
+        pygame.draw.circle(screen, yellow, board_to_coord_function(index[0]), 35)
 
 
 def move_check(position):
@@ -428,7 +431,7 @@ def player_vs_player():
                 move_check(pos)
 
         # Draw board
-        screen.fill((50, 176, 201))
+        screen.fill(cyan)
 
         board_background()
         board_pieces()
@@ -465,7 +468,99 @@ def bot_vs_bot():
 
 
 def rules():
-    print('rules')
+    rules_running = True
+    while rules_running:
+        for event_rules in pygame.event.get():
+            if event_rules.type == pygame.QUIT:
+                quit()
+            if event_rules.type == pygame.MOUSEBUTTONUP:
+                rules_position = pygame.mouse.get_pos()
+                if 520 <= rules_position[0] <= 580 and 750 <= rules_position[1] <= 780:
+                    rules_running = False
+
+        screen.fill(cyan)
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        if 520 <= mouse_pos[0] <= 580 and 750 <= mouse_pos[1] <= 780:
+            pygame.draw.rect(screen, light_grey, (520, 750, 60, 30))
+        else:
+            pygame.draw.rect(screen, grey, (520, 750, 60, 30))
+
+        pygame.draw.rect(screen, black, (520, 750, 60, 30), width=2)
+
+        pygame.draw.rect(screen, grey, (70, 190, 970, 510))
+        pygame.draw.rect(screen, black, (70, 190, 970, 510), width=2)
+
+        header = pygame.font.SysFont('arial', 60, bold=True)
+        rules_text = header.render("RULES", True, black)
+        rules_font = pygame.font.SysFont('arial', 24)
+        button_back = rules_font.render("Back", True, black)
+        rules_line1 = rules_font.render("This is the game of Reversi otherwise know as Othello, the rules are as follows:", True, black)
+        rules_line1_2 = rules_font.render("(The game takes care of most of these rules)", True, black)
+        rules_line2 = rules_font.render("1. Black always goes first, in the player vs bot mode the player is black.", True, black)
+        rules_line3 = rules_font.render("2. If you do not have and available move, your turn is forfeited. The yellow circles signify your available moves.", True, black)
+        rules_line4 = rules_font.render("3. To place a piece you must be able to 'outflank' at least one opponents piece (examples below).", True, black)
+        rules_line5 = rules_font.render("4. You can not outflank your own piece.", True, black)
+        rules_line6 = rules_font.render("5. Pieces can only be outflanked by the new placed piece. Flipped pieces do not outflank other pieces.", True, black)
+        rules_line7 = rules_font.render("6. All outflanked pieces MUST be filled even if it leave you at a disadvantage.", True, black)
+        rules_line8 = rules_font.render("7. When neither person can play, the game is then over and the person with the most pieces on the board", True, black)
+        rules_line8_2 = rules_font.render("    is the winner.", True, black)
+
+        screen.blit(rules_text, (460, 100))
+        screen.blit(rules_line1, (80, 200))
+        screen.blit(rules_line1_2, (80, 230))
+        screen.blit(rules_line2, (80, 280))
+        screen.blit(rules_line3, (80, 310))
+        screen.blit(rules_line4, (80, 340))
+
+        pygame.draw.rect(screen, green, (300, 380, 140, 140))
+        pygame.draw.rect(screen, black, (300, 380, 140, 140), width=2)
+        pygame.draw.line(screen, black, (335, 380), (335, 520), width=2)
+        pygame.draw.line(screen, black, (370, 380), (370, 520), width=2)
+        pygame.draw.line(screen, black, (405, 380), (405, 520), width=2)
+        pygame.draw.line(screen, black, (300, 415), (440, 415), width=2)
+        pygame.draw.line(screen, black, (300, 450), (440, 450), width=2)
+        pygame.draw.line(screen, black, (300, 485), (440, 485), width=2)
+
+        pygame.draw.circle(screen, white, (318, 397), 12)
+        pygame.draw.circle(screen, white, (423, 397), 12)
+        pygame.draw.circle(screen, white, (388, 502), 12)
+        pygame.draw.circle(screen, black, (318, 467), 12)
+        pygame.draw.circle(screen, black, (318, 432), 12)
+        pygame.draw.circle(screen, black, (353, 467), 12)
+        pygame.draw.circle(screen, black, (388, 432), 12)
+        pygame.draw.circle(screen, black, (353, 502), 12)
+
+        pygame.draw.circle(screen, yellow, (318, 502), 12)
+
+        pygame.draw.rect(screen, green, (660, 380, 140, 140))
+        pygame.draw.rect(screen, black, (660, 380, 140, 140), width=2)
+        pygame.draw.line(screen, black, (695, 380), (695, 520), width=2)
+        pygame.draw.line(screen, black, (730, 380), (730, 520), width=2)
+        pygame.draw.line(screen, black, (765, 380), (765, 520), width=2)
+        pygame.draw.line(screen, black, (660, 415), (800, 415), width=2)
+        pygame.draw.line(screen, black, (660, 450), (800, 450), width=2)
+        pygame.draw.line(screen, black, (660, 485), (800, 485), width=2)
+
+        pygame.draw.circle(screen, white, (783, 397), 12)
+        pygame.draw.circle(screen, white, (748, 502), 12)
+        pygame.draw.circle(screen, white, (678, 467), 12)
+        pygame.draw.circle(screen, white, (678, 432), 12)
+        pygame.draw.circle(screen, white, (713, 467), 12)
+        pygame.draw.circle(screen, white, (748, 432), 12)
+        pygame.draw.circle(screen, white, (713, 502), 12)
+
+        pygame.draw.circle(screen, white, (678, 502), 12)
+
+        screen.blit(rules_line5, (80, 540))
+        screen.blit(rules_line6, (80, 570))
+        screen.blit(rules_line7, (80, 600))
+        screen.blit(rules_line8, (80, 630))
+        screen.blit(rules_line8_2, (80, 660))
+        screen.blit(button_back, (530, 750))
+
+        pygame.display.update()
 
 
 if __name__ == "__main__":
@@ -475,7 +570,6 @@ if __name__ == "__main__":
             if event_menu.type == pygame.QUIT:
                 quit()
             if event_menu.type == pygame.MOUSEBUTTONUP:
-                print("click")
                 menu_pos = pygame.mouse.get_pos()
                 if 410 <= menu_pos[0] <= 690 and 400 <= menu_pos[1] <= 450:
                     player_vs_player()
@@ -488,7 +582,7 @@ if __name__ == "__main__":
                 elif 410 <= menu_pos[0] <= 690 and 640 <= menu_pos[1] <= 690:
                     quit()
 
-        screen.fill((50, 176, 201))
+        screen.fill(cyan)
 
         mouse = pygame.mouse.get_pos()
 
