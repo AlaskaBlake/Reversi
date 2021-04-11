@@ -25,6 +25,7 @@ light_grey = (122, 122, 122)
 cyan = (50, 176, 201)
 green = (26, 186, 15)
 yellow = (200, 200, 30)
+red = (255, 0, 0)
 
 # Game information
 board = []
@@ -34,6 +35,7 @@ board[27] = 'W'
 board[28] = 'B'
 board[35] = 'B'
 board[36] = 'W'
+stuck = False
 
 available_moves = []
 black_pieces = 2
@@ -395,27 +397,43 @@ def board_full():
         return True
 
 
-def display_winner():
-    if black_pieces > white_pieces:
-        win_color = 'BLACK'
-    else:
-        win_color = 'WHITE'
-
-    font_bold = pygame.font.SysFont('arial', 42, bold=True)
-    win = font_bold.render(f"{win_color} WINS!!!", True, (255, 0, 0))
-    screen.blit(win, (400, 475))
-
-
 def end_of_game():
     end_running = True
     while end_running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                end_running = False
+                quit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                end_click = pygame.mouse.get_pos()
+                if 445 <= end_click[0] <= 605 and 485 <= end_click[1] <= 525:
+                    end_running = False
+
         board_background()
         board_pieces()
         board_info()
-        display_winner()
+
+        pygame.draw.rect(screen, grey, (390, 425, 270, 120))
+        pygame.draw.rect(screen, black, (390, 425, 270, 120), width=2)
+
+        mouse_end = pygame.mouse.get_pos()
+        if 445 <= mouse_end[0] <= 605 and 485 <= mouse_end[1] <= 525:
+            pygame.draw.rect(screen, light_grey, (445, 485, 160, 40))
+
+        pygame.draw.rect(screen, black, (445, 485, 160, 40), width=2)
+
+        if black_pieces > white_pieces:
+            win_color = 'BLACK'
+        else:
+            win_color = 'WHITE'
+
+        font_bold = pygame.font.SysFont('arial', 42, bold=True)
+        win = font_bold.render(f"{win_color} WINS!!!", True, red)
+        font_button = pygame.font.SysFont('arial', 36)
+        text_menu = font_button.render("Main Menu", True, black)
+
+        screen.blit(text_menu, (455, 485))
+        screen.blit(win, (400, 425))
+
         pygame.display.update()
 
 
@@ -436,9 +454,12 @@ def player_vs_player():
         board_background()
         board_pieces()
         board_info()
+        global stuck
+        stuck = False
         if len(available_moves) == 0:
             if not calculate_moves():
                 if board_full():
+                    end_of_game()
                     running = False
                 else:
                     if turn:
@@ -448,12 +469,19 @@ def player_vs_player():
 
                     font = pygame.font.SysFont('arial', 42, bold=True)
                     forfeit_message = font.render(f"{color}'s turn was forfeited because they could not play.",
-                                                  True, (255, 0, 0))
+                                                  True, red)
                     screen.blit(forfeit_message, (80, 475))
                     pygame.display.update()
                     time.sleep(3)
                     turn = not turn
+                    if stuck:
+                        end_of_game()
+                        running = False
+                    else:
+                        stuck = True
                     continue
+            else:
+                stuck = False
         draw_available()
 
         pygame.display.update()
