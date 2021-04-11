@@ -485,7 +485,7 @@ if __name__ == "__main__":
                     bot_vs_bot()
                 elif 410 <= menu_pos[0] <= 690 and 580 <= menu_pos[1] <= 630:
                     rules()
-                elif 410 <= mouse[0] <= 690 and 640 <= mouse[1] <= 690:
+                elif 410 <= menu_pos[0] <= 690 and 640 <= menu_pos[1] <= 690:
                     quit()
 
         screen.fill((50, 176, 201))
