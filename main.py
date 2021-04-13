@@ -550,6 +550,8 @@ def bot_turn():
 def player_vs_player():
     global turn
     global available_moves
+    global stuck
+    stuck = False
     running = True
     while running:
         for event in pygame.event.get():
@@ -566,8 +568,7 @@ def player_vs_player():
         board_pieces()
         score_update()
         board_info()
-        global stuck
-        stuck = False
+
         if len(available_moves) == 0:
             temp = calculate_moves(board, turn)
             available_moves = temp[1]
@@ -604,6 +605,10 @@ def player_vs_player():
 def player_vs_bot():
     global turn
     global available_moves
+
+    global stuck
+    stuck = False
+
     running = True
     while running:
         # Draw board
@@ -618,8 +623,6 @@ def player_vs_bot():
 
         pygame.display.update()
 
-        global stuck
-        stuck = False
         if len(available_moves) == 0:
             temp = calculate_moves(board, turn)
             available_moves = temp[1]
@@ -665,6 +668,9 @@ def bot_vs_bot():
     global turn
     global available_moves
 
+    global stuck
+    stuck = False
+
     running = True
     while running:
         for event in pygame.event.get():
@@ -681,9 +687,6 @@ def bot_vs_bot():
         draw_available()
 
         pygame.display.update()
-
-        global stuck
-        stuck = False
         if len(available_moves) == 0:
             temp = calculate_moves(board, turn)
             available_moves = temp[1]
