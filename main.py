@@ -35,11 +35,12 @@ board[27] = 'W'
 board[28] = 'B'
 board[35] = 'B'
 board[36] = 'W'
-stuck = False
 
 available_moves = []
 black_pieces = 2
 white_pieces = 2
+stuck = False
+max_depth = 6
 
 # True = Black
 # False = White
@@ -110,14 +111,13 @@ def board_info():
         pygame.draw.circle(screen, white, (980, 375), 35)
 
 
-def calculate_moves():
-    global available_moves
+def calculate_moves(board_in, turn_in):
 
     flag = False
-    available_moves = []
+    available_moves_local = []
 
     # Check for available moves
-    for spot in range(len(board)):
+    for spot in range(len(board_in)):
         row = spot // 8
         col = spot % 8
         n = False
@@ -129,16 +129,16 @@ def calculate_moves():
         se = False
         sw = False
 
-        if board[spot] == ' ':
+        if board_in[spot] == ' ':
 
             # North test
             if (row - 1) >= 0:
-                piece = board[((row - 1) * 8) + col]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[((row - 1) * 8) + col]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for N in range((row - 2), -1, -1):
-                        if (board[N * 8 + col] == 'W' and turn) or (board[N * 8 + col] == 'B' and not turn):
+                        if (board_in[N * 8 + col] == 'W' and turn_in) or (board_in[N * 8 + col] == 'B' and not turn_in):
                             continue
-                        elif board[N * 8 + col] == ' ':
+                        elif board_in[N * 8 + col] == ' ':
                             break
                         else:
                             n = True
@@ -147,12 +147,12 @@ def calculate_moves():
 
             # South test
             if (row + 1) <= 7:
-                piece = board[((row + 1) * 8) + col]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[((row + 1) * 8) + col]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for S in range((row + 2), 8):
-                        if (board[S * 8 + col] == 'W' and turn) or (board[S * 8 + col] == 'B' and not turn):
+                        if (board_in[S * 8 + col] == 'W' and turn_in) or (board_in[S * 8 + col] == 'B' and not turn_in):
                             continue
-                        elif board[S * 8 + col] == ' ':
+                        elif board_in[S * 8 + col] == ' ':
                             break
                         else:
                             s = True
@@ -161,12 +161,12 @@ def calculate_moves():
 
             # East test
             if (col + 1) <= 7:
-                piece = board[(row * 8) + (col + 1)]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[(row * 8) + (col + 1)]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for E in range((col + 2), 8):
-                        if (board[(row * 8) + E] == 'W' and turn) or board[(row * 8) + E] == 'B' and not turn:
+                        if (board_in[(row * 8) + E] == 'W' and turn_in) or (board_in[(row * 8) + E] == 'B' and not turn_in):
                             continue
-                        elif board[row * 8 + E] == ' ':
+                        elif board_in[row * 8 + E] == ' ':
                             break
                         else:
                             e = True
@@ -175,12 +175,12 @@ def calculate_moves():
 
             # West test
             if (col - 1) >= 0:
-                piece = board[(row * 8) + (col - 1)]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[(row * 8) + (col - 1)]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for W in range((col - 2), -1, -1):
-                        if (board[(row * 8) + W] == 'W' and turn) or board[(row * 8) + W] == 'B' and not turn:
+                        if (board_in[(row * 8) + W] == 'W' and turn_in) or (board_in[(row * 8) + W] == 'B' and not turn_in):
                             continue
-                        elif board[row * 8 + W] == ' ':
+                        elif board_in[row * 8 + W] == ' ':
                             break
                         else:
                             w = True
@@ -189,14 +189,14 @@ def calculate_moves():
 
             # North West test
             if (col - 1) >= 0 and (row - 1) >= 0:
-                piece = board[((row - 1) * 8) + (col - 1)]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[((row - 1) * 8) + (col - 1)]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for NW in range(1, 8):
                         if ((col - NW) >= 0) and ((row - NW) >= 0):
-                            if (board[((row - NW) * 8) + (col - NW)] == 'W' and turn) or \
-                                    (board[((row - NW) * 8) + (col - NW)] == 'B' and not turn):
+                            if (board_in[((row - NW) * 8) + (col - NW)] == 'W' and turn_in) or \
+                                    (board_in[((row - NW) * 8) + (col - NW)] == 'B' and not turn_in):
                                 continue
-                            elif board[((row - NW) * 8) + (col - NW)] == ' ':
+                            elif board_in[((row - NW) * 8) + (col - NW)] == ' ':
                                 break
                             else:
                                 nw = True
@@ -207,14 +207,14 @@ def calculate_moves():
 
             # North East test
             if (col + 1) <= 7 and (row - 1) >= 0:
-                piece = board[((row - 1) * 8) + (col + 1)]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[((row - 1) * 8) + (col + 1)]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for NE in range(1, 8):
                         if ((col + NE) <= 7) and ((row - NE) >= 0):
-                            if (board[((row - NE) * 8) + (col + NE)] == 'W' and turn) or \
-                                    (board[((row - NE) * 8) + (col + NE)] == 'B' and not turn):
+                            if (board_in[((row - NE) * 8) + (col + NE)] == 'W' and turn_in) or \
+                                    (board_in[((row - NE) * 8) + (col + NE)] == 'B' and not turn_in):
                                 continue
-                            elif board[((row - NE) * 8) + (col + NE)] == ' ':
+                            elif board_in[((row - NE) * 8) + (col + NE)] == ' ':
                                 break
                             else:
                                 ne = True
@@ -225,14 +225,14 @@ def calculate_moves():
 
             # South West test
             if (col - 1) >= 0 and (row + 1) <= 7:
-                piece = board[((row + 1) * 8) + (col - 1)]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[((row + 1) * 8) + (col - 1)]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for SW in range(1, 8):
                         if ((col - SW) >= 0) and ((row + SW) <= 7):
-                            if (board[((row + SW) * 8) + (col - SW)] == 'W' and turn) or \
-                                    (board[((row + SW) * 8) + (col - SW)] == 'B' and not turn):
+                            if (board_in[((row + SW) * 8) + (col - SW)] == 'W' and turn_in) or \
+                                    (board_in[((row + SW) * 8) + (col - SW)] == 'B' and not turn_in):
                                 continue
-                            elif board[((row + SW) * 8) + (col - SW)] == ' ':
+                            elif board_in[((row + SW) * 8) + (col - SW)] == ' ':
                                 break
                             else:
                                 sw = True
@@ -243,14 +243,14 @@ def calculate_moves():
 
             # South East test
             if (col + 1) <= 7 and (row + 1) <= 7:
-                piece = board[((row + 1) * 8) + (col + 1)]
-                if (piece == 'W' and turn) or (piece == 'B' and not turn):
+                piece = board_in[((row + 1) * 8) + (col + 1)]
+                if (piece == 'W' and turn_in) or (piece == 'B' and not turn_in):
                     for SE in range(1, 8):
                         if ((col + SE) <= 7) and ((row + SE) <= 7):
-                            if (board[((row + SE) * 8) + (col + SE)] == 'W' and turn) or \
-                                    (board[((row + SE) * 8) + (col + SE)] == 'B' and not turn):
+                            if (board_in[((row + SE) * 8) + (col + SE)] == 'W' and turn_in) or \
+                                    (board_in[((row + SE) * 8) + (col + SE)] == 'B' and not turn_in):
                                 continue
-                            elif board[((row + SE) * 8) + (col + SE)] == ' ':
+                            elif board_in[((row + SE) * 8) + (col + SE)] == ' ':
                                 break
                             else:
                                 se = True
@@ -260,9 +260,9 @@ def calculate_moves():
                             break
 
         if n or s or e or w or ne or nw or se or sw:
-            available_moves.append([spot, [n, e, s, w, ne, se, sw, nw]])
+            available_moves_local.append([spot, [n, e, s, w, ne, se, sw, nw]])
 
-    return flag
+    return flag, available_moves_local
 
 
 def draw_available():
@@ -272,113 +272,120 @@ def draw_available():
 
 def move_check(position):
     global available_moves
+    global board
+    global turn
     col = position[0] // 100 - 1
     row = position[1] // 100 - 1
     if 0 <= row <= 7 and 0 <= col <= 7:
         index = row * 8 + col
         for a in range(len(available_moves)):
             if index == available_moves[a][0]:
-                board_update(available_moves[a])
+                board = board_update(available_moves[a], board, turn)
+                available_moves = []
+                turn = not turn
                 break
 
 
-def board_update(index):
-    global turn
-    global available_moves
-    global board
-    global white_pieces
-    global black_pieces
+def board_update(index, board_in, turn_in):
 
     row = index[0] // 8
     col = index[0] % 8
 
-    if turn:
+    if turn_in:
         end_piece = 'B'
     else:
         end_piece = 'W'
 
-    board[index[0]] = end_piece
+    board_in[index[0]] = end_piece
 
     counter = 1
     # North
     if index[1][0]:
         while True:
-            if board[(row - counter) * 8 + col] == end_piece:
+            if board_in[(row - counter) * 8 + col] == end_piece:
                 break
             else:
-                board[(row - counter) * 8 + col] = end_piece
+                board_in[(row - counter) * 8 + col] = end_piece
             counter += 1
 
     counter = 1
     # East
     if index[1][1]:
         while True:
-            if board[row * 8 + col + counter] == end_piece:
+            if board_in[row * 8 + col + counter] == end_piece:
                 break
             else:
-                board[row * 8 + col + counter] = end_piece
+                board_in[row * 8 + col + counter] = end_piece
             counter += 1
 
     counter = 1
     # South
     if index[1][2]:
         while True:
-            if board[(row + counter) * 8 + col] == end_piece:
+            if board_in[(row + counter) * 8 + col] == end_piece:
                 break
             else:
-                board[(row + counter) * 8 + col] = end_piece
+                board_in[(row + counter) * 8 + col] = end_piece
             counter += 1
 
     counter = 1
     # West
     if index[1][3]:
         while True:
-            if board[row * 8 + col - counter] == end_piece:
+            if board_in[row * 8 + col - counter] == end_piece:
                 break
             else:
-                board[row * 8 + col - counter] = end_piece
+                board_in[row * 8 + col - counter] = end_piece
             counter += 1
 
     counter = 1
     # North East
     if index[1][4]:
         while True:
-            if board[(row - counter) * 8 + col + counter] == end_piece:
+            if board_in[(row - counter) * 8 + col + counter] == end_piece:
                 break
             else:
-                board[(row - counter) * 8 + col + counter] = end_piece
+                board_in[(row - counter) * 8 + col + counter] = end_piece
             counter += 1
 
     counter = 1
     # South East
     if index[1][5]:
         while True:
-            if board[(row + counter) * 8 + col + counter] == end_piece:
+            if board_in[(row + counter) * 8 + col + counter] == end_piece:
                 break
             else:
-                board[(row + counter) * 8 + col + counter] = end_piece
+                board_in[(row + counter) * 8 + col + counter] = end_piece
             counter += 1
 
     counter = 1
     # South West
     if index[1][6]:
         while True:
-            if board[(row + counter) * 8 + col - counter] == end_piece:
+            if board_in[(row + counter) * 8 + col - counter] == end_piece:
                 break
             else:
-                board[(row + counter) * 8 + col - counter] = end_piece
+                board_in[(row + counter) * 8 + col - counter] = end_piece
             counter += 1
 
     counter = 1
     # North West
     if index[1][7]:
         while True:
-            if board[(row - counter) * 8 + col - counter] == end_piece:
+            if board_in[(row - counter) * 8 + col - counter] == end_piece:
                 break
             else:
-                board[(row - counter) * 8 + col - counter] = end_piece
+                board_in[(row - counter) * 8 + col - counter] = end_piece
             counter += 1
 
+    return board_in
+
+
+def score_update():
+    global turn
+    global available_moves
+    global white_pieces
+    global black_pieces
     turn = not turn
     available_moves = []
     white_pieces = 0
@@ -437,8 +444,96 @@ def end_of_game():
         pygame.display.update()
 
 
+class Node:
+
+    def __init__(self, *args):
+
+        # board, turn
+        if len(args) == 2:
+            self.children = []
+            self.depth = 0
+            self.node_board = args[0]
+            self.turn = args[1]
+            self.value = None
+
+        # board, move, turn, depth
+        else:
+            self.children = []
+            self.depth = args[3]
+            self.node_board = board_update(args[1], args[0], args[2])
+            self.turn = args[2]
+            self.value = None
+
+    def populate_children(self):
+        if self.depth < max_depth:
+            temp_board = self.node_board[:]
+            temp = calculate_moves(self.node_board, self.turn)
+            if temp[0]:
+                for a in temp[1]:
+                    self.children.append(Node(temp_board, a, not self.turn, self.depth + 1))
+
+                for a in self.children:
+                    a.populate_children()
+
+            else:
+                self.eval_board()
+        else:
+            self.eval_board()
+
+    def eval_board(self):
+        black_count = 0
+        white_count = 0
+        for spot in self.node_board:
+            if spot == 'W':
+                white_count += 1
+            elif spot == 'B':
+                black_count += 1
+
+        self.value = black_count - white_count
+
+    def min_max(self):
+        if self.value is None:
+            for a in self.children:
+                a.min_max()
+
+        # min
+        if self.depth % 2 == 1:
+            temp = 70
+            for a in self.children:
+                if a.value < temp:
+                    temp = a.value
+            self.value = temp
+        # max
+        else:
+            temp = -70
+            for a in self.children:
+                if a.value > temp:
+                    temp = a.value
+            self.value = temp
+
+
+def bot_turn():
+    global board
+    global turn
+    global available_moves
+
+    head = Node(board, turn)
+    head.populate_children()
+    head.min_max()
+
+    index = 0
+    for a in range(len(head.children)):
+        if head.children[a].value == head.value:
+            index = a
+
+    board = board_update(available_moves[index], board, turn)
+    available_moves = []
+    turn = not turn
+
+
 def player_vs_player():
     global turn
+    global available_moves
     running = True
     while running:
         for event in pygame.event.get():
@@ -457,7 +552,9 @@ def player_vs_player():
         global stuck
         stuck = False
         if len(available_moves) == 0:
-            if not calculate_moves():
+            temp = calculate_moves(board, turn)
+            available_moves = temp[1]
+            if not temp[0]:
                 if board_full():
                     end_of_game()
                     running = False
@@ -488,7 +585,61 @@ def player_vs_player():
 
 
 def player_vs_bot():
-    print('player vs bot')
+    global turn
+    global available_moves
+    running = True
+    while running:
+        # Draw board
+        screen.fill(cyan)
+
+        board_background()
+        board_pieces()
+        board_info()
+
+        draw_available()
+
+        pygame.display.update()
+
+        global stuck
+        stuck = False
+        if len(available_moves) == 0:
+            temp = calculate_moves(board, turn)
+            available_moves = temp[1]
+            if not temp[0]:
+                if board_full():
+                    end_of_game()
+                    running = False
+                else:
+                    if turn:
+                        color = 'Black'
+                    else:
+                        color = 'White'
+
+                    font = pygame.font.SysFont('arial', 42, bold=True)
+                    forfeit_message = font.render(f"{color}'s turn was forfeited because they could not play.",
+                                                  True, red)
+                    screen.blit(forfeit_message, (80, 475))
+                    pygame.display.update()
+                    time.sleep(3)
+                    turn = not turn
+                    if stuck:
+                        end_of_game()
+                        running = False
+                    else:
+                        stuck = True
+                    continue
+            else:
+                stuck = False
+
+        if turn:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
+                if event.type == pygame.MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    move_check(pos)
+        else:
+            bot_turn()
 
 
 def bot_vs_bot():
