@@ -27,24 +27,43 @@ green = (26, 186, 15)
 yellow = (200, 200, 30)
 red = (255, 0, 0)
 
-# Game information
 board = []
-for i in range(0, 64):
-    board.append(' ')
-board[27] = 'W'
-board[28] = 'B'
-board[35] = 'B'
-board[36] = 'W'
-
 available_moves = []
 black_pieces = 2
 white_pieces = 2
 stuck = False
-max_depth = 6
 
 # True = Black
 # False = White
 turn = True
+
+max_depth = 6
+
+
+# Game information
+def game_init():
+    global board
+    global available_moves
+    global turn
+    global black_pieces
+    global white_pieces
+
+    board = []
+    for a in range(0, 64):
+        board.append(' ')
+    board[27] = 'W'
+    board[28] = 'B'
+    board[35] = 'B'
+    board[36] = 'W'
+
+    available_moves = []
+    black_pieces = 2
+    white_pieces = 2
+
+    # True = Black
+    # False = White
+    turn = True
+
 
 # Piece locations to board coordinates
 board_to_coord = []
@@ -382,12 +401,8 @@ def board_update(index, board_in, turn_in):
 
 
 def score_update():
-    global turn
-    global available_moves
     global white_pieces
     global black_pieces
-    turn = not turn
-    available_moves = []
     white_pieces = 0
     black_pieces = 0
     for a in range(len(board)):
@@ -417,6 +432,7 @@ def end_of_game():
 
         board_background()
         board_pieces()
+        score_update()
         board_info()
 
         pygame.draw.rect(screen, grey, (390, 425, 270, 120))
@@ -548,6 +564,7 @@ def player_vs_player():
 
         board_background()
         board_pieces()
+        score_update()
         board_info()
         global stuck
         stuck = False
@@ -594,6 +611,7 @@ def player_vs_bot():
 
         board_background()
         board_pieces()
+        score_update()
         board_info()
 
         draw_available()
@@ -608,7 +626,7 @@ def player_vs_bot():
             if not temp[0]:
                 if board_full():
                     end_of_game()
-                    running = False
+                    break
                 else:
                     if turn:
                         color = 'Black'
@@ -624,7 +642,7 @@ def player_vs_bot():
                     turn = not turn
                     if stuck:
                         end_of_game()
-                        running = False
+                        break
                     else:
                         stuck = True
                     continue
@@ -640,10 +658,63 @@ def player_vs_bot():
                     move_check(pos)
         else:
             bot_turn()
+            time.sleep(.5)
 
 
 def bot_vs_bot():
-    print('bot vs bot')
+    global turn
+    global available_moves
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+
+        screen.fill(cyan)
+
+        board_background()
+        board_pieces()
+        score_update()
+        board_info()
+
+        draw_available()
+
+        pygame.display.update()
+
+        global stuck
+        stuck = False
+        if len(available_moves) == 0:
+            temp = calculate_moves(board, turn)
+            available_moves = temp[1]
+            if not temp[0]:
+                if board_full():
+                    end_of_game()
+                    break
+                else:
+                    if turn:
+                        color = 'Black'
+                    else:
+                        color = 'White'
+
+                    font = pygame.font.SysFont('arial', 42, bold=True)
+                    forfeit_message = font.render(f"{color}'s turn was forfeited because they could not play.",
+                                                  True, red)
+                    screen.blit(forfeit_message, (80, 475))
+                    pygame.display.update()
+                    time.sleep(3)
+                    turn = not turn
+                    if stuck:
+                        end_of_game()
+                        break
+                    else:
+                        stuck = True
+                    continue
+            else:
+                stuck = False
+
+        bot_turn()
+        time.sleep(.5)
 
 
 def rules():
@@ -752,10 +823,13 @@ if __name__ == "__main__":
             if event_menu.type == pygame.MOUSEBUTTONUP:
                 menu_pos = pygame.mouse.get_pos()
                 if 410 <= menu_pos[0] <= 690 and 400 <= menu_pos[1] <= 450:
+                    game_init()
                     player_vs_player()
                 elif 410 <= menu_pos[0] <= 690 and 460 <= menu_pos[1] <= 510:
+                    game_init()
                     player_vs_bot()
                 elif 410 <= menu_pos[0] <= 690 and 520 <= menu_pos[1] <= 570:
+                    game_init()
                     bot_vs_bot()
                 elif 410 <= menu_pos[0] <= 690 and 580 <= menu_pos[1] <= 630:
                     rules()
