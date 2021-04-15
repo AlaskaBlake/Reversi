@@ -419,6 +419,21 @@ def board_full():
         return True
 
 
+def back_button():
+    back_font = pygame.font.SysFont('arial', 32)
+    back = back_font.render("Back", True, black)
+
+    mouse_pos = pygame.mouse.get_pos()
+
+    if 10 <= mouse_pos[0] <= 90 and 10 <= mouse_pos[1] <= 45:
+        pygame.draw.rect(screen, light_grey, (10, 10, 80, 35))
+    else:
+        pygame.draw.rect(screen, grey, (10, 10, 80, 35))
+
+    pygame.draw.rect(screen, black, (10, 10, 80, 35), width=2)
+    screen.blit(back, (20, 10))
+
+
 def end_of_game():
     end_running = True
     while end_running:
@@ -559,7 +574,11 @@ def player_vs_player():
                 quit()
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
+                if 10 <= pos[0] <= 90 and 10 <= pos[1] <= 45:
+                    running = False
                 move_check(pos)
+        if not running:
+            break
 
         # Draw board
         screen.fill(cyan)
@@ -568,6 +587,7 @@ def player_vs_player():
         board_pieces()
         score_update()
         board_info()
+        back_button()
 
         if len(available_moves) == 0:
             temp = calculate_moves(board, turn)
@@ -618,6 +638,7 @@ def player_vs_bot():
         board_pieces()
         score_update()
         board_info()
+        back_button()
 
         draw_available()
 
@@ -658,6 +679,8 @@ def player_vs_bot():
                     quit()
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
+                    if 10 <= pos[0] <= 90 and 10 <= pos[1] <= 45:
+                        running = False
                     move_check(pos)
         else:
             bot_turn()
@@ -676,6 +699,13 @@ def bot_vs_bot():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                if 10 <= pos[0] <= 90 and 10 <= pos[1] <= 45:
+                    running = False
+
+        if not running:
+            break
 
         screen.fill(cyan)
 
@@ -683,6 +713,7 @@ def bot_vs_bot():
         board_pieces()
         score_update()
         board_info()
+        back_button()
 
         draw_available()
 
